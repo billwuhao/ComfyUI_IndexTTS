@@ -85,6 +85,16 @@ class IndexTTS:
         # print(">> vqvae weights restored from:", self.dvae_path)
         self.gpt = UnifiedVoice(**self.cfg.gpt)
         self.gpt_path = os.path.join(self.model_dir, self.cfg.gpt_checkpoint)
+        if not os.path.exists(models_path):
+            print(f"Downloading Index-TTS model to: {models_path}")
+            from huggingface_hub import snapshot_download
+
+            snapshot_download(
+                repo_id="IndexTeam/Index-TTS",
+                allow_patterns=["bigvgan_generator.pth", "bpe.model", "gpt.pth"],
+                local_dir=models_path,
+                local_dir_use_symlinks=False,
+            )
         load_checkpoint(self.gpt, self.gpt_path)
         self.gpt = self.gpt.to(self.device)
         if self.is_fp16:
