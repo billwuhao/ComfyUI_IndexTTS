@@ -24,7 +24,12 @@ pip install -r requirements.txt
 
 ## Model Download
 
-- Models need to be downloaded manually and placed in the `ComfyUI\models\TTS\Index-TTS` directory:
+- Models can be automatically downloaded to `ComfyUI\models\TTS\Index-TTS` folder:
+- Recommended for China users. 如果中国用户下载速度慢或无法连接至huggingface.co，可以使用镜像：
+
+```bash
+export HF_ENDPOINT="https://hf-mirror.com"
+```
 
 [Index-TTS](https://huggingface.co/IndexTeam/Index-TTS/tree/main) structure as follows:
 
