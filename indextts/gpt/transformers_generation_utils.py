@@ -55,7 +55,6 @@ from transformers.generation.candidate_generator import (
     AssistedCandidateGeneratorDifferentTokenizers,
     CandidateGenerator,
     PromptLookupCandidateGenerator,
-    _crop_past_key_values,
     _prepare_attention_mask,
     _prepare_token_type_ids,
 )
@@ -102,6 +101,42 @@ from transformers.generation.stopping_criteria import (
     StoppingCriteriaList,
     StopStringCriteria,
 )
+
+
+# Compatibility function for older transformers versions
+def _crop_past_key_values(model, past_key_values, new_cache_size):
+    """
+    Crop past_key_values to match new_cache_size for compatibility with newer transformers versions.
+    """
+    if past_key_values is None:
+        return None
+    
+    cropped_past_key_values = []
+    for layer_past in past_key_values:
+        if layer_past is None:
+            cropped_past_key_values.append(None)
+            continue
+            
+        # Each layer_past should be a tuple of (key, value) tensors
+        if isinstance(layer_past, (tuple, list)) and len(layer_past) == 2:
+            key, value = layer_past
+            # Crop along the sequence length dimension (usually dim=2)
+            if key is not None and key.size(2) > new_cache_size:
+                cropped_key = key[:, :, :new_cache_size, :]
+            else:
+                cropped_key = key
+                
+            if value is not None and value.size(2) > new_cache_size:
+                cropped_value = value[:, :, :new_cache_size, :]
+            else:
+                cropped_value = value
+                
+            cropped_past_key_values.append((cropped_key, cropped_value))
+        else:
+            # Fallback for unexpected formats
+            cropped_past_key_values.append(layer_past)
+    
+    return tuple(cropped_past_key_values)
 
 
 if TYPE_CHECKING:
@@ -1002,7 +1037,8 @@ class GenerationMixin:
                     device=device,
                 )
             )
-        if generation_config.forced_decoder_ids is not None:
+        # Check for forced_decoder_ids attribute compatibility with newer transformers versions
+        if hasattr(generation_config, 'forced_decoder_ids') and generation_config.forced_decoder_ids is not None:
             # TODO (sanchit): move this exception to GenerationConfig.validate() when TF & FLAX are aligned with PT
             raise ValueError(
                 "You have explicitly specified `forced_decoder_ids`. Please remove the `forced_decoder_ids` argument "
