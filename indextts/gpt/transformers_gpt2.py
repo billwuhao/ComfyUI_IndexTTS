@@ -32,7 +32,7 @@ import transformers
 
 from indextts.gpt.transformers_generation_utils import GenerationMixin
 from indextts.gpt.transformers_modeling_utils import PreTrainedModel
-from transformers.modeling_utils import SequenceSummary
+from transformers.models.gpt2.modeling_gpt2 import GPT2SequenceSummary as SequenceSummary
 
 from transformers.modeling_attn_mask_utils import _prepare_4d_attention_mask_for_sdpa, _prepare_4d_causal_attention_mask_for_sdpa
 from transformers.modeling_outputs import (
