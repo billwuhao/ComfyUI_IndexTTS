@@ -27,9 +27,6 @@ textstat
 pynini==2.1.6; platform_system!="Windows"
 WeTextProcessing>=1.0.3; platform_system!="Windows"
 
-WeTextProcessing; platform_machine != "Darwin"
-wetext; platform_system == "Darwin"
-
 # importlib_resources
 # pynini==2.1.6.post1
 # WeTextProcessing>=1.0.4
